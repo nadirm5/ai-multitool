@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -71,6 +70,7 @@
             msg.style.padding = "8px";
             msg.style.margin = "5px 0";
             msg.style.borderRadius = "5px";
+            msg.style.whiteSpace = "pre-wrap";
             if (fromUser) {
                 msg.style.background = "#d1e7dd";
                 msg.style.textAlign = "right";
@@ -88,22 +88,24 @@
             appendMessage(text, true);
             input.value = '';
 
-            // Ici tu feras la requête à ton backend Flask pour obtenir la réponse IA
-            fetch('/chat', {
+            fetch('/ask', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text })
+                body: JSON.stringify({ mode: "text", message: text })
             })
             .then(res => res.json())
             .then(data => {
-                appendMessage(data.reply, false);
+                if (data.reply) {
+                    appendMessage(data.reply, false);
+                } else {
+                    appendMessage("Erreur : aucune réponse reçue.", false);
+                }
             })
             .catch(() => {
                 appendMessage("Erreur de communication avec le serveur.", false);
             });
         });
 
-        // Permet d’envoyer le message avec la touche Entrée
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 sendBtn.click();
