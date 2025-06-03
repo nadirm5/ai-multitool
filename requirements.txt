@@ -1,3 +1,4 @@
-git add requirements.txt
-git commit -m "Ajout des dépendances Flask, flask-cors et openai"
-git push
+Flask
+openai
+flask_cors
+
