@@ -1,115 +1,26 @@
+<!-- templates/index.html -->
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Mon Chatbot IA</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f0f0f0;
-            margin: 0;
-            padding: 20px;
-        }
-        #chatbox {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        #messages {
-            height: 300px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-bottom: 10px;
-            background: #fafafa;
-            border-radius: 5px;
-        }
-        #userinput {
-            width: 80%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        #sendbtn {
-            width: 18%;
-            padding: 10px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        #sendbtn:hover {
-            background: #0056b3;
-        }
-    </style>
+  <title>Chatbot IA</title>
 </head>
 <body>
-    <div id="chatbox">
-        <h2>Chatbot IA</h2>
-        <div id="messages"></div>
-        <input id="userinput" type="text" placeholder="Écris ton message..." />
-        <button id="sendbtn">Envoyer</button>
-    </div>
+  <h1>Chatbot IA</h1>
+  <input id="message" placeholder="Écris un message" />
+  <button onclick="sendMessage()">Envoyer</button>
+  <p id="response"></p>
 
-    <script>
-        const messagesDiv = document.getElementById('messages');
-        const input = document.getElementById('userinput');
-        const sendBtn = document.getElementById('sendbtn');
-
-        function appendMessage(text, fromUser) {
-            const msg = document.createElement('div');
-            msg.textContent = text;
-            msg.style.padding = "8px";
-            msg.style.margin = "5px 0";
-            msg.style.borderRadius = "5px";
-            if (fromUser) {
-                msg.style.background = "#d1e7dd";
-                msg.style.textAlign = "right";
-            } else {
-                msg.style.background = "#f8d7da";
-                msg.style.textAlign = "left";
-            }
-            messagesDiv.appendChild(msg);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
-
-        sendBtn.addEventListener('click', () => {
-            const text = input.value.trim();
-            if (!text) return;
-            appendMessage(text, true);
-            input.value = '';
-
-            fetch('/ask', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ mode: "text", message: text })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.error) {
-                    appendMessage("Erreur: " + data.error, false);
-                } else {
-                    appendMessage(data.reply, false);
-                }
-            })
-            .catch(() => {
-                appendMessage("Erreur de communication avec le serveur.", false);
-            });
-        });
-
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                sendBtn.click();
-            }
-        });
-    </script>
+  <script>
+    async function sendMessage() {
+      const message = document.getElementById("message").value;
+      const res = await fetch("/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: "text", message: message })
+      });
+      const data = await res.json();
+      document.getElementById("response").innerText = data.reply || data.error;
+    }
+  </script>
 </body>
 </html>
