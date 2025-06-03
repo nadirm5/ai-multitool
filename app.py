@@ -1,13 +1,12 @@
 from flask import Flask, render_template, request, jsonify
-import openai
-import os
 from flask_cors import CORS
+from openai import OpenAI
+import os
 
 app = Flask(__name__)
-CORS(app)  # Autoriser les requêtes Cross-Origin si besoin
+CORS(app)
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
-print("Clé API chargée:", bool(openai.api_key))
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @app.route("/")
 def home():
@@ -16,33 +15,29 @@ def home():
 @app.route("/ask", methods=["POST"])
 def ask():
     data = request.json
-    print("Données reçues :", data)
     mode = data.get("mode")
     message = data.get("message")
 
     try:
         if mode == "text":
-            response = openai.ChatCompletion.create(
+            response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": message}]
             )
-            reply = response.choices[0].message.content
-            return jsonify({"reply": reply})
+            return jsonify({"reply": response.choices[0].message.content})
 
         elif mode == "image":
-            response = openai.Image.create(
+            response = client.images.generate(
                 prompt=message,
                 n=1,
                 size="512x512"
             )
-            image_url = response['data'][0]['url']
-            return jsonify({"image_url": image_url})
+            return jsonify({"image_url": response.data[0].url})
 
         else:
             return jsonify({"error": "Mode invalide"}), 400
 
     except Exception as e:
-        print("Erreur serveur/OpenAI:", e)
         return jsonify({"error": "Erreur serveur: " + str(e)}), 500
 
 if __name__ == "__main__":
