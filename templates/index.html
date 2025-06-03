@@ -70,7 +70,6 @@
             msg.style.padding = "8px";
             msg.style.margin = "5px 0";
             msg.style.borderRadius = "5px";
-            msg.style.whiteSpace = "pre-wrap";
             if (fromUser) {
                 msg.style.background = "#d1e7dd";
                 msg.style.textAlign = "right";
@@ -91,26 +90,19 @@
             fetch('/ask', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ mode: "text", message: text })
+                body: JSON.stringify({
+                    mode: "text",
+                    message: text
+                })
             })
             .then(res => res.json())
             .then(data => {
                 if (data.reply) {
                     appendMessage(data.reply, false);
                 } else {
-                    appendMessage("Erreur : aucune réponse reçue.", false);
+                    appendMessage("Erreur : aucune réponse du serveur.", false);
                 }
             })
             .catch(() => {
                 appendMessage("Erreur de communication avec le serveur.", false);
-            });
-        });
-
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                sendBtn.click();
-            }
-        });
-    </script>
-</body>
-</html>
+           
